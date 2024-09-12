@@ -4,10 +4,6 @@ build:
   python_version: "3.9"
   python_packages:
     - requests
-    - Pillow
-    - urllib3
-    - bs4
-    - pybase64
     - easyocr
 
 predict: "predict.py:Predictor"

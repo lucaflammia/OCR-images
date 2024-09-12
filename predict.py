@@ -1,46 +1,36 @@
 import requests
 import json
-from io import BytesIO
-from PIL import Image
-# import url_to_image
-import urllib3
-import pybase64
 import easyocr
-from bs4 import BeautifulSoup
 from cog import BasePredictor, Input
 
 class Predictor(BasePredictor):
 
     def predict(self, url: str = Input(description="URL of the image to extract text from")) -> str:
         try:
-            # Download and process the image
-            # image_file = self.download_image(url)
-            encoded_image = self.encode_image(url)
-            text = self.ocr_image(encoded_image)
+            # Read image bytes from URL
+            image_bytes = self.read_bytes_from_url(url)
+            ocr_texts = self.get_ocr_text_from_image(image_bytes)
 
             # Create a structured JSON response
-            # result = {
-            #     "url": url,
-            #     "extracted_text": text,
-            # }
+            result = {
+                "url": url,
+                "extracted_text": ' '.join(ocr_texts)
+            }
             
-            return text
-            # return json.dumps(result, indent=4)
+            return json.dumps(result, indent=4)
         except Exception as e:
             return json.dumps({"error": str(e)}, indent=4)
 
-    # def download_image(self, url):
-    #     response = requests.get(url)
-    #     response.raise_for_status()
-    #     return BytesIO(response.content)
+    def read_bytes_from_url(self, url):
+        response = requests.get(url)
+        image_bytes = response.content
 
-    def encode_image(self, url):
-        http = urllib3.PoolManager()
-        response = http.request('GET', url)
-        data = pybase64.b64encode(response.data)
-        return data
+        return image_bytes
 
-    def ocr_image(self, url, lang_in: str ='en', lang_out: str ='en'):
+    def get_ocr_text_from_image(self, image_bytes, lang_in: str ='en', lang_out: str ='en'):
         reader = easyocr.Reader([lang_in, lang_out])
-        ocr_text = reader.readtext(url)  
-        return ocr_text
+        outcomes = reader.readtext(image_bytes)
+        # readtext outcomes is a list of tuples and only strings are considered for the OCR text
+        ocr_texts = [ocr_text for outcome in outcomes for ocr_text in outcome if isinstance(ocr_text, str)]
+
+        return ocr_texts
