@@ -23,8 +23,8 @@ If you want to run the project locally:
 2. **Run the Predictor:**
 
    ```python
-   from predict import Predictor
-	import json
+    from predict import Predictor
+    import json
 
 	# Instantiate the Predictor class
 	predictor = Predictor()
@@ -37,11 +37,11 @@ If you want to run the project locally:
 
 	# Optionally, parse the JSON to access specific fields
 	result = json.loads(json_output)
-	print("Summary:", result["summary"])
+	print("OCR text : ", result["extracted_text"])
    ```
 
    This will download the images, extract the text and return the results in JSON format.
 
 ## License
 
-This project is licensed under the Apache License
+This project is licensed under the Apache License Version 2.0.
